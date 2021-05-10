@@ -10,6 +10,24 @@ runtime: shiny
 library(flexdashboard)
 library(shiny)
 library(leaflet)
+library(tidyverse)
+
+install.packages("bigrquery")
+library(bigrquery)
+
+# Warehouse Connection
+# BigQuery API Key
+bq_auth(path = "mpg-data-warehouse-api_key-master.json")
+Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
+billing <- bq_test_project()
+```
+
+```{r}
+# vegetation_gridVeg_summaries
+vegetation_gridVeg_summaries_sql <- "SELECT * FROM `mpg-data-warehouse.vegetation_gridVeg_summaries.gridVeg_survey_effort`" 
+bq_vegetation_gridVeg_summaries <- bq_project_query(billing, vegetation_gridVeg_summaries_sql)
+tb_vegetation_gridVeg_summaries <- bq_table_download(bq_vegetation_gridVeg_summaries)
+df_vegetation_gridVeg_summaries <- as.data.frame(tb_vegetation_gridVeg_summaries)
 ```
 
 Sidebar {.sidebar data-width=250}
@@ -21,16 +39,38 @@ selectInput("subject",
                         "Bird"),
             selected = c("Bird", "Vegetation"),
             multiple = TRUE)
+
+dateRangeInput("date_range", 
+               label = "Date range:",
+               start = "2013-01-01",
+               end = Sys.Date() - 1,
+               max = Sys.Date() - 1,
+               min = "2013-01-01")
 ```
 
 Map {.tabset data-width=750}
 =====================================
 
 ```{r}
+gridpoints_all <- df_vegetation_gridVeg_summaries %>%
+  select(grid_point, lat, long) %>%
+  distinct(grid_point, lat, long)
+
+selected = 2015
+gridpoints_selected <- df_vegetation_gridVeg_summaries %>%
+  select(grid_point, lat, long, year) %>%
+  filter(year == selected) %>%
+  distinct(grid_point, lat, long)
+
 leaflet() %>%
   # addTiles() %>%
   setView(-114.001, 46.70, zoom = 13) %>%
-  addWMSTiles("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}", layers = "OpenTopoMap")
+  addWMSTiles("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}", layers = "OpenTopoMap") %>%
+  addCircleMarkers(gridpoints_all$long, gridpoints_all$lat, 
+                   color = 'x',
+                   radius = 20,
+                   popupOptions = TRUE) %>%
+  addCircleMarkers(gridpoints_selected$long, gridpoints_selected$lat, radius = 5, color = 'yellow')
 ```
 
 Surveys
