@@ -33,13 +33,6 @@ df_vegetation_gridVeg_summaries <- as.data.frame(tb_vegetation_gridVeg_summaries
 Sidebar {.sidebar data-width=250}
 =====================================
 ```{r}
-selectInput("subject",
-            "Data Terms:",
-            choices = c("Vegetation", "Biomass", "Point Count",
-                        "Bird"),
-            selected = c("Bird", "Vegetation"),
-            multiple = TRUE)
-
 selectInput("year_selection",
             "Select Year:",
             choices = c(2011, 2012, 2013, 2014, 2015, 2016, 2017),
