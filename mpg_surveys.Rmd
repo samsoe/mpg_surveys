@@ -34,18 +34,21 @@ Sidebar {.sidebar data-width=250}
 =====================================
 ```{r}
 selectInput("subject",
-            "Data subject:",
+            "Data Terms:",
             choices = c("Vegetation", "Biomass", "Point Count",
                         "Bird"),
             selected = c("Bird", "Vegetation"),
             multiple = TRUE)
 
-dateRangeInput("date_range", 
-               label = "Date range:",
-               start = "2013-01-01",
-               end = Sys.Date() - 1,
-               max = Sys.Date() - 1,
-               min = "2013-01-01")
+selectInput("year",
+            "Select Year:",
+            choices = c(2011, 2012, 2013, 2014, 2015, 2016, 2017),
+            selected = c(2017),
+            multiple = TRUE)
+
+display_year <- reactive({
+  input$year
+})
 ```
 
 Map {.tabset data-width=750}
