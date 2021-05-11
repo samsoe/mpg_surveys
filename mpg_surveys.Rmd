@@ -17,7 +17,7 @@ library(bigrquery)
 
 # Warehouse Connection
 # BigQuery API Key
-bq_auth(path = "mpg-data-warehouse-api_key-master.json")
+bq_auth(path = "keys/mpg-data-warehouse-api_key-master.json")
 Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
 billing <- bq_test_project()
 ```
