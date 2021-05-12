@@ -64,8 +64,8 @@ observe({
   clearMarkers() %>%
   addCircleMarkers(gridpoints_all$long, gridpoints_all$lat, 
                  color = 'x',
-                 radius = 20) %>%
-  addCircleMarkers(gridpoints_selected()$long, gridpoints_selected()$lat, radius = 5, color = 'yellow')
+                 radius = 17) %>%
+  addCircleMarkers(gridpoints_selected()$long, gridpoints_selected()$lat, radius = 4, color = 'yellow')
 })
 ```
 
