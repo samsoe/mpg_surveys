@@ -52,7 +52,8 @@ gridpoints_selected <- reactive({
 })
 
 output$map_base <- renderLeaflet({
-  leaflet() %>%
+  leaflet(options = leafletOptions(zoomControl = TRUE,
+                                 minZoom = 12, maxZoom = 16)) %>%
     # addTiles() %>%
     setView(-114.001, 46.70, zoom = 13) %>%
     addWMSTiles("https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}", 
