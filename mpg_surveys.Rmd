@@ -77,6 +77,16 @@ selectInput("year_selection",
             selected = c(2017, 2013),
             multiple = TRUE)
 
+distinct_surveys <- df_surveys %>%
+  select(survey) %>%
+  distinct(survey)
+
+selectInput("survey_selection",
+            "Select Survey:",
+            choices = distinct_surveys,
+            selected = "vegetation_biomass horizontal_cover_robel",
+            multiple = TRUE)
+
 # Show all gridpoints as shadow on top of tiles
 gridpoints_all <- df_surveys %>%
   select(grid_point, lat, long) %>%
@@ -85,7 +95,7 @@ gridpoints_all <- df_surveys %>%
 gridpoints_selected <- reactive({
   df_surveys %>%
     select(grid_point, lat, long, year, survey) %>%
-    filter(year %in% input$year_selection & survey == "vegetation_biomass horizontal_cover_robel") %>%
+    filter(year %in% input$year_selection & survey %in% input$survey_selection) %>%
     distinct(grid_point, lat, long)
 })
 
