@@ -69,7 +69,8 @@ Sidebar {.sidebar data-width=250}
 ```{r}
 distinct_years <- df_surveys %>%
     select(year) %>%
-    distinct(year)
+    distinct(year) %>%
+    arrange(year)
 
 selectInput("year_selection",
             "Select Year:",
