@@ -25,39 +25,7 @@ billing <- bq_test_project()
 ```{r}
 # vegetation_gridVeg_summaries
 sql_surveys <- "
-  SELECT
-      x.year,
-      x.grid_point,
-      y.lat,
-      y.long,
-      x.survey
-  FROM(SELECT * 
-      FROM(SELECT 
-          survey_year as year,
-          survey_grid_point as grid_point,
-          'bird_point_count_summaries' AS survey
-      FROM `mpg-data-warehouse.bird_point_count_summaries.abundance_order`
-      GROUP BY 
-          survey_year, survey_grid_point
-      ORDER BY 
-          survey_year, survey_grid_point)
-  
-  #####################################################################
-  UNION ALL 
-  #####################################################################
-  
-  SELECT
-      year,
-      grid_point,
-      'vegetation_biomass horizontal_cover_robel' AS survey
-  FROM `mpg-data-warehouse.vegetation_biomass.horizontal_cover_robel`) AS x
-  
-  #####################################################################
-  # JOIN
-  #####################################################################
-  
-  LEFT JOIN `mpg-data-warehouse.grid_point_metadata.point_location_position` AS y
-  ON x.grid_point = y.grid_point
+  SELECT * FROM `mpg-data-warehouse.grid_point_summaries.survey_summary`
 " 
 bq_surveys <- bq_project_query(billing, sql_surveys)
 tb_surveys <- bq_table_download(bq_surveys)
@@ -85,7 +53,7 @@ distinct_surveys <- df_surveys %>%
 selectInput("survey_selection",
             "Select Survey:",
             choices = distinct_surveys,
-            selected = "vegetation_biomass horizontal_cover_robel",
+            selected = "vegetation_biomass",
             multiple = TRUE)
 
 # Show all gridpoints as shadow on top of tiles
