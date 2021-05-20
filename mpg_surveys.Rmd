@@ -11,6 +11,7 @@ library(flexdashboard)
 library(shiny)
 library(leaflet)
 library(tidyverse)
+library(DT)
 
 install.packages("bigrquery")
 library(bigrquery)
@@ -68,6 +69,13 @@ gridpoints_selected <- reactive({
     distinct(grid_point, lat, long)
 })
 
+gridpoints_table <- reactive({
+  df_surveys %>% 
+  select(-lat, -long) %>%
+  filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+  arrange(year, grid_point, survey)
+})
+
 output$map_base <- renderLeaflet({
   leaflet(options = leafletOptions(zoomControl = TRUE,
                                  minZoom = 12, maxZoom = 16)) %>%
@@ -99,4 +107,12 @@ Surveys
 
 Column {.tabset data-width=750}
 -----------------
-Text and Hyperlinks related to datasets
+```{r}
+renderDataTable({
+  datatable(
+    gridpoints_table(), 
+    rownames = FALSE,
+    options = list(scrollY = '400px', scrollX = TRUE)
+  )
+})
+```
