@@ -14,14 +14,14 @@ library(tidyverse)
 library(DT)
 library(shinyWidgets)
 
-# install.packages("bigrquery")
-# library(bigrquery)
+install.packages("bigrquery")
+library(bigrquery)
 
 # Warehouse Connection
 # BigQuery API Key
-# bq_auth(path = "keys/mpg-data-warehouse-api_key-master.json")
-# Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
-# billing <- bq_test_project()
+bq_auth(path = "keys/mpg-data-warehouse-api_key-master.json")
+Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
+billing <- bq_test_project()
 ```
 
 ```{r}
@@ -29,10 +29,9 @@ library(shinyWidgets)
 sql_surveys <- "
   SELECT * FROM `mpg-data-warehouse.grid_point_summaries.survey_summary`
 " 
-# bq_surveys <- bq_project_query(billing, sql_surveys)
-# tb_surveys <- bq_table_download(bq_surveys)
-# df_surveys <- as.data.frame(tb_surveys)
-df_surveys <- read_csv('keys/results-20210521-081317.csv')
+bq_surveys <- bq_project_query(billing, sql_surveys)
+tb_surveys <- bq_table_download(bq_surveys)
+df_surveys <- as.data.frame(tb_surveys)
 ```
 
 Sidebar {.sidebar data-width=300}
