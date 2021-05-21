@@ -13,14 +13,14 @@ library(leaflet)
 library(tidyverse)
 library(DT)
 
-install.packages("bigrquery")
-library(bigrquery)
+# install.packages("bigrquery")
+# library(bigrquery)
 
 # Warehouse Connection
 # BigQuery API Key
-bq_auth(path = "keys/mpg-data-warehouse-api_key-master.json")
-Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
-billing <- bq_test_project()
+# bq_auth(path = "keys/mpg-data-warehouse-api_key-master.json")
+# Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
+# billing <- bq_test_project()
 ```
 
 ```{r}
@@ -28,25 +28,15 @@ billing <- bq_test_project()
 sql_surveys <- "
   SELECT * FROM `mpg-data-warehouse.grid_point_summaries.survey_summary`
 " 
-bq_surveys <- bq_project_query(billing, sql_surveys)
-tb_surveys <- bq_table_download(bq_surveys)
-df_surveys <- as.data.frame(tb_surveys)
+# bq_surveys <- bq_project_query(billing, sql_surveys)
+# tb_surveys <- bq_table_download(bq_surveys)
+# df_surveys <- as.data.frame(tb_surveys)
+df_surveys <- read_csv('keys/results-20210521-081317.csv')
 ```
 
 Sidebar {.sidebar data-width=250}
 =====================================
 ```{r}
-distinct_years <- df_surveys %>%
-    select(year) %>%
-    distinct(year) %>%
-    arrange(year)
-
-selectInput("year_selection",
-            "Select Year:",
-            choices = distinct_years,
-            selected = c(2017, 2013),
-            multiple = TRUE)
-
 distinct_surveys <- df_surveys %>%
   select(survey) %>%
   distinct(survey)
@@ -56,6 +46,22 @@ selectInput("survey_selection",
             choices = distinct_surveys,
             selected = "vegetation_biomass",
             multiple = TRUE)
+
+distinct_years <- reactive({
+  df_surveys %>%
+    filter(survey %in% input$survey_selection) %>%
+    select(year) %>%
+    distinct(year) %>%
+    arrange(desc(year))
+  })
+
+renderUI({
+selectInput("year_selection",
+            "Select Year:",
+            choices = distinct_years(),
+            # Select most recent year?
+            selected = distinct_years()$year[1],
+            multiple = TRUE)})
 
 # Show all gridpoints as shadow on top of tiles
 gridpoints_all <- df_surveys %>%
@@ -108,10 +114,20 @@ Surveys
 Column {.tabset data-width=750}
 -----------------
 ```{r}
-renderDataTable({
+gridpoints_table <- reactive({
+  df_surveys %>% 
+  select(-lat, -long) %>%
+  filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+  distinct(year, grid_point, survey) %>%
+  mutate(grid_point = as.character(grid_point)) %>%
+  arrange(year, grid_point, survey)
+})
+
+renderDT({
   datatable(
     gridpoints_table(), 
     rownames = FALSE,
+    filter = "top",
     options = list(scrollY = '400px', scrollX = TRUE)
   )
 })
