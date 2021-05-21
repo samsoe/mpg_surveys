@@ -75,6 +75,13 @@ gridpoints_selected <- reactive({
     distinct(grid_point, lat, long)
 })
 
+gridpoints_table <- reactive({
+  df_surveys %>% 
+  select(-lat, -long) %>%
+  filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+  arrange(year, grid_point, survey)
+})
+
 output$map_base <- renderLeaflet({
   leaflet(options = leafletOptions(zoomControl = TRUE,
                                  minZoom = 12, maxZoom = 16)) %>%
