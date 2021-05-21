@@ -47,16 +47,21 @@ selectInput("survey_selection",
             selected = "vegetation_biomass",
             multiple = TRUE)
 
-distinct_years <- df_surveys %>%
+distinct_years <- reactive({
+  df_surveys %>%
+    filter(survey %in% input$survey_selection) %>%
     select(year) %>%
     distinct(year) %>%
-    arrange(year)
+    arrange(desc(year))
+  })
 
+renderUI({
 selectInput("year_selection",
             "Select Year:",
-            choices = distinct_years,
-            selected = c(2017, 2013),
-            multiple = TRUE)
+            choices = distinct_years(),
+            # Select most recent year?
+            selected = distinct_years()$year[1],
+            multiple = TRUE)})
 
 # Show all gridpoints as shadow on top of tiles
 gridpoints_all <- df_surveys %>%
@@ -68,13 +73,6 @@ gridpoints_selected <- reactive({
     select(grid_point, lat, long, year, survey) %>%
     filter(year %in% input$year_selection & survey %in% input$survey_selection) %>%
     distinct(grid_point, lat, long)
-})
-
-gridpoints_table <- reactive({
-  df_surveys %>% 
-  select(-lat, -long) %>%
-  filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
-  arrange(year, grid_point, survey)
 })
 
 output$map_base <- renderLeaflet({
@@ -109,10 +107,20 @@ Surveys
 Column {.tabset data-width=750}
 -----------------
 ```{r}
-renderDataTable({
+gridpoints_table <- reactive({
+  df_surveys %>% 
+  select(-lat, -long) %>%
+  filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+  distinct(year, grid_point, survey) %>%
+  mutate(grid_point = as.character(grid_point)) %>%
+  arrange(year, grid_point, survey)
+})
+
+renderDT({
   datatable(
     gridpoints_table(), 
     rownames = FALSE,
+    filter = "top",
     options = list(scrollY = '400px', scrollX = TRUE)
   )
 })
