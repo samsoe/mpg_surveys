@@ -13,14 +13,14 @@ library(leaflet)
 library(tidyverse)
 library(DT)
 
-install.packages("bigrquery")
-library(bigrquery)
+# install.packages("bigrquery")
+# library(bigrquery)
 
 # Warehouse Connection
 # BigQuery API Key
-bq_auth(path = "keys/mpg-data-warehouse-api_key-master.json")
-Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
-billing <- bq_test_project()
+# bq_auth(path = "keys/mpg-data-warehouse-api_key-master.json")
+# Sys.setenv(BIGQUERY_TEST_PROJECT = "mpg-data-warehouse")
+# billing <- bq_test_project()
 ```
 
 ```{r}
@@ -28,9 +28,10 @@ billing <- bq_test_project()
 sql_surveys <- "
   SELECT * FROM `mpg-data-warehouse.grid_point_summaries.survey_summary`
 " 
-bq_surveys <- bq_project_query(billing, sql_surveys)
-tb_surveys <- bq_table_download(bq_surveys)
-df_surveys <- as.data.frame(tb_surveys)
+# bq_surveys <- bq_project_query(billing, sql_surveys)
+# tb_surveys <- bq_table_download(bq_surveys)
+# df_surveys <- as.data.frame(tb_surveys)
+df_surveys <- read_csv('keys/results-20210521-081317.csv')
 ```
 
 Sidebar {.sidebar data-width=250}
