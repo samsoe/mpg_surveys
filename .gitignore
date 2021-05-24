@@ -46,3 +46,6 @@ vignettes/*.pdf
 
 # Mac things
 .DS_Store
+
+# shinyapps.io
+rsconnect/
