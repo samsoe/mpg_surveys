@@ -37,19 +37,23 @@ df_surveys <- read_csv('keys/results-20210521-081317.csv')
 
 Sidebar {.sidebar data-width=300}
 =====================================
+<br>
 ```{r}
+# Find unique surveys in dataset
 distinct_surveys <- df_surveys %>%
   select(survey) %>%
   distinct(survey)
 
+# User select surveys
 pickerInput(inputId = "survey_selection",
-            label = "Select Survey:",
+            label = "Show Survey:",
             choices = distinct_surveys,
             selected = "vegetation_biomass",
             multiple = TRUE,
             options = list(`actions-box` = TRUE)
             )
 
+# Based on user survey selection show available years
 distinct_years <- reactive({
   df_surveys %>%
     filter(survey %in% input$survey_selection) %>%
@@ -58,9 +62,10 @@ distinct_years <- reactive({
     arrange(desc(year))
   })
 
+# User select years
 renderUI({
   pickerInput(inputId = "year_selection",
-            label = "Select Year:",
+            label = "Show Year:",
             choices = distinct_years(),
             selected = distinct_years()$year[1],
             multiple = TRUE,
@@ -68,16 +73,22 @@ renderUI({
             )
 })
 
-# Show all gridpoints as shadow on top of tiles
+# Show all gridpoints as background shadow on map
 gridpoints_all <- df_surveys %>%
   select(grid_point, lat, long) %>%
   distinct(grid_point, lat, long)
 
+# Show selected gridpoints
 gridpoints_selected <- reactive({
   df_surveys %>%
     select(grid_point, lat, long, year, survey) %>%
     filter(year %in% input$year_selection & survey %in% input$survey_selection) %>%
     distinct(grid_point, lat, long)
+})
+
+# Highlight gridpoints
+gridpoints_highlight <- reactive({
+  
 })
 
 gridpoints_table <- reactive({
