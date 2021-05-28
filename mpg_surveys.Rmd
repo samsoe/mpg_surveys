@@ -13,8 +13,6 @@ library(leaflet)
 library(tidyverse)
 library(DT)
 library(shinyWidgets)
-
-install.packages("bigrquery")
 library(bigrquery)
 
 # Warehouse Connection
