@@ -12,6 +12,7 @@ library(shiny)
 library(leaflet)
 library(tidyverse)
 library(DT)
+library(shinyWidgets)
 
 # install.packages("bigrquery")
 # library(bigrquery)
@@ -34,19 +35,25 @@ sql_surveys <- "
 df_surveys <- read_csv('keys/results-20210521-081317.csv')
 ```
 
-Sidebar {.sidebar data-width=250}
+Sidebar {.sidebar data-width=300}
 =====================================
+<br>
 ```{r}
+# Find unique surveys in dataset
 distinct_surveys <- df_surveys %>%
   select(survey) %>%
   distinct(survey)
 
-selectInput("survey_selection",
-            "Select Survey:",
+# Show surveys
+pickerInput(inputId = "survey_selection",
+            label = "Show Survey:",
             choices = distinct_surveys,
             selected = "vegetation_biomass",
-            multiple = TRUE)
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
 
+# Based on user survey selection show available years
 distinct_years <- reactive({
   df_surveys %>%
     filter(survey %in% input$survey_selection) %>%
@@ -55,23 +62,64 @@ distinct_years <- reactive({
     arrange(desc(year))
   })
 
+# Show years
 renderUI({
-selectInput("year_selection",
-            "Select Year:",
+  pickerInput(inputId = "year_selection",
+            label = "Show Year:",
             choices = distinct_years(),
-            # Select most recent year?
             selected = distinct_years()$year[1],
-            multiple = TRUE)})
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
+})
 
-# Show all gridpoints as shadow on top of tiles
+# Show all gridpoints
 gridpoints_all <- df_surveys %>%
   select(grid_point, lat, long) %>%
   distinct(grid_point, lat, long)
 
+# Show gridpoints
 gridpoints_selected <- reactive({
   df_surveys %>%
     select(grid_point, lat, long, year, survey) %>%
     filter(year %in% input$year_selection & survey %in% input$survey_selection) %>%
+    distinct(grid_point, lat, long)
+})
+
+# Highlight survey
+pickerInput(inputId = "survey_highlight",
+            label = "Highlight Survey:",
+            choices = distinct_surveys,
+            selected = "",
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
+
+# Show available years for highlight
+distinct_years_high <- reactive({
+  df_surveys %>%
+    filter(survey %in% input$survey_highlight) %>%
+    select(year) %>%
+    distinct(year) %>%
+    arrange(desc(year))
+  })
+
+# Pick Highlight years
+renderUI({
+  pickerInput(inputId = "year_highlight",
+            label = "Highlight Year:",
+            choices = distinct_years_high(),
+            selected = distinct_years_high()$year[1],
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
+})
+
+# Highlight gridpoints
+gridpoints_highlighted <- reactive({
+  df_surveys %>%
+    select(grid_point, lat, long, year, survey) %>%
+    filter(year %in% input$year_highlight & survey %in% input$survey_highlight) %>%
     distinct(grid_point, lat, long)
 })
 
@@ -96,12 +144,14 @@ observe({
   addCircleMarkers(gridpoints_all$long, gridpoints_all$lat, 
                  color = 'x',
                  radius = 17, popup = as.character(gridpoints_all$grid_point)) %>%
-  addCircleMarkers(gridpoints_selected()$long, gridpoints_selected()$lat, radius = 4, color = 'yellow',
-                   popup = as.character(gridpoints_selected()$grid_point))
+  addCircleMarkers(gridpoints_selected()$long, gridpoints_selected()$lat, radius = 5, color = 'yellow',
+                   popup = as.character(gridpoints_selected()$grid_point)) %>%
+  addCircleMarkers(gridpoints_highlighted()$long, gridpoints_highlighted()$lat, radius = 2, color = 'red', opacity = 1,
+                   popup = as.character(gridpoints_highlighted()$grid_point))
 })
 ```
 
-Map {.tabset data-width=750}
+Map {.tabset data-width=700}
 =====================================
 
 ```{r}
@@ -111,7 +161,7 @@ leafletOutput("map_base", width = "100%", height = "100%")
 Surveys
 =====================================
 
-Column {.tabset data-width=750}
+Column {.tabset data-width=700}
 -----------------
 ```{r}
 gridpoints_table <- reactive({
