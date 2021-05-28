@@ -12,6 +12,7 @@ library(shiny)
 library(leaflet)
 library(tidyverse)
 library(DT)
+library(shinyWidgets)
 
 # install.packages("bigrquery")
 # library(bigrquery)
@@ -34,18 +35,20 @@ sql_surveys <- "
 df_surveys <- read_csv('keys/results-20210521-081317.csv')
 ```
 
-Sidebar {.sidebar data-width=250}
+Sidebar {.sidebar data-width=300}
 =====================================
 ```{r}
 distinct_surveys <- df_surveys %>%
   select(survey) %>%
   distinct(survey)
 
-selectInput("survey_selection",
-            "Select Survey:",
+pickerInput(inputId = "survey_selection",
+            label = "Select Survey:",
             choices = distinct_surveys,
             selected = "vegetation_biomass",
-            multiple = TRUE)
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
 
 distinct_years <- reactive({
   df_surveys %>%
@@ -56,12 +59,14 @@ distinct_years <- reactive({
   })
 
 renderUI({
-selectInput("year_selection",
-            "Select Year:",
+  pickerInput(inputId = "year_selection",
+            label = "Select Year:",
             choices = distinct_years(),
-            # Select most recent year?
             selected = distinct_years()$year[1],
-            multiple = TRUE)})
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
+})
 
 # Show all gridpoints as shadow on top of tiles
 gridpoints_all <- df_surveys %>%
@@ -101,7 +106,7 @@ observe({
 })
 ```
 
-Map {.tabset data-width=750}
+Map {.tabset data-width=700}
 =====================================
 
 ```{r}
@@ -111,7 +116,7 @@ leafletOutput("map_base", width = "100%", height = "100%")
 Surveys
 =====================================
 
-Column {.tabset data-width=750}
+Column {.tabset data-width=700}
 -----------------
 ```{r}
 gridpoints_table <- reactive({
