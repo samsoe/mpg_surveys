@@ -44,7 +44,7 @@ distinct_surveys <- df_surveys %>%
   select(survey) %>%
   distinct(survey)
 
-# User select surveys
+# Show surveys
 pickerInput(inputId = "survey_selection",
             label = "Show Survey:",
             choices = distinct_surveys,
@@ -62,7 +62,7 @@ distinct_years <- reactive({
     arrange(desc(year))
   })
 
-# User select years
+# Show years
 renderUI({
   pickerInput(inputId = "year_selection",
             label = "Show Year:",
@@ -73,12 +73,12 @@ renderUI({
             )
 })
 
-# Show all gridpoints as background shadow on map
+# Show all gridpoints
 gridpoints_all <- df_surveys %>%
   select(grid_point, lat, long) %>%
   distinct(grid_point, lat, long)
 
-# Show selected gridpoints
+# Show gridpoints
 gridpoints_selected <- reactive({
   df_surveys %>%
     select(grid_point, lat, long, year, survey) %>%
@@ -86,9 +86,41 @@ gridpoints_selected <- reactive({
     distinct(grid_point, lat, long)
 })
 
+# Highlight survey
+pickerInput(inputId = "survey_highlight",
+            label = "Highlight Survey:",
+            choices = distinct_surveys,
+            selected = "",
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
+
+# Show available years for highlight
+distinct_years_high <- reactive({
+  df_surveys %>%
+    filter(survey %in% input$survey_highlight) %>%
+    select(year) %>%
+    distinct(year) %>%
+    arrange(desc(year))
+  })
+
+# Pick Highlight years
+renderUI({
+  pickerInput(inputId = "year_highlight",
+            label = "Highlight Year:",
+            choices = distinct_years_high(),
+            selected = distinct_years_high()$year[1],
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
+})
+
 # Highlight gridpoints
-gridpoints_highlight <- reactive({
-  
+gridpoints_highlighted <- reactive({
+  df_surveys %>%
+    select(grid_point, lat, long, year, survey) %>%
+    filter(year %in% input$year_highlight & survey %in% input$survey_highlight) %>%
+    distinct(grid_point, lat, long)
 })
 
 gridpoints_table <- reactive({
@@ -112,8 +144,10 @@ observe({
   addCircleMarkers(gridpoints_all$long, gridpoints_all$lat, 
                  color = 'x',
                  radius = 17, popup = as.character(gridpoints_all$grid_point)) %>%
-  addCircleMarkers(gridpoints_selected()$long, gridpoints_selected()$lat, radius = 4, color = 'yellow',
-                   popup = as.character(gridpoints_selected()$grid_point))
+  addCircleMarkers(gridpoints_selected()$long, gridpoints_selected()$lat, radius = 5, color = 'yellow',
+                   popup = as.character(gridpoints_selected()$grid_point)) %>%
+  addCircleMarkers(gridpoints_highlighted()$long, gridpoints_highlighted()$lat, radius = 2, color = 'red', opacity = 1,
+                   popup = as.character(gridpoints_highlighted()$grid_point))
 })
 ```
 
