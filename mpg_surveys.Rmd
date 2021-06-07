@@ -172,3 +172,21 @@ renderDT({
   )
 })
 ```
+
+Chart
+=====================================
+Column {.tabset data-width=700}
+-----------------
+```{r}
+survey_chart <- reactive({
+  df_surveys %>%
+    filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+    count(year, survey, name = "count")
+})
+
+renderPlot({
+  ggplot(survey_chart(), aes(x = factor(year))) +
+    geom_bar(aes(weight = count, fill = survey), position = "dodge") +
+    labs(x = "Sample Year")
+})
+```
