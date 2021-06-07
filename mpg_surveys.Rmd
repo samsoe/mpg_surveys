@@ -175,7 +175,6 @@ renderDT({
 
 Chart
 =====================================
-
 Column {.tabset data-width=700}
 -----------------
 ```{r}
@@ -186,7 +185,8 @@ survey_chart <- reactive({
 })
 
 renderPlot({
-  ggplot(survey_chart(), aes(x = year)) +
-    geom_bar(aes(weight = count, fill = survey), position = "dodge")
+  ggplot(survey_chart(), aes(x = factor(year))) +
+    geom_bar(aes(weight = count, fill = survey), position = "dodge") +
+    labs(x = "Sample Year")
 })
 ```
