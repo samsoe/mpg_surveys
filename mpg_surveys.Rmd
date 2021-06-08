@@ -77,7 +77,7 @@ gridpoints_all <- df_surveys %>%
 gridpoints_selected <- reactive({
   df_surveys %>%
     select(grid_point, lat, long, year, survey) %>%
-    filter(year %in% input$year_selection & survey %in% input$survey_selection) %>%
+    filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
     distinct(grid_point, lat, long)
 })
 
