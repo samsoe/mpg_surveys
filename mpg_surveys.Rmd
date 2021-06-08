@@ -34,21 +34,11 @@ df_surveys <- as.data.frame(tb_surveys)
 
 Sidebar {.sidebar data-width=300}
 =====================================
-<br>
 ```{r}
 # Find unique surveys in dataset
 distinct_surveys <- df_surveys %>%
   select(survey) %>%
   distinct(survey)
-
-# Show surveys
-pickerInput(inputId = "survey_selection",
-            label = "Show Survey:",
-            choices = distinct_surveys,
-            selected = "vegetation_biomass",
-            multiple = TRUE,
-            options = list(`actions-box` = TRUE)
-            )
 
 # Based on user survey selection show available years
 distinct_years <- reactive({
@@ -59,16 +49,24 @@ distinct_years <- reactive({
     arrange(desc(year))
   })
 
-# Show years
+# Year Slider
 renderUI({
-  pickerInput(inputId = "year_selection",
-            label = "Show Year:",
-            choices = distinct_years(),
-            selected = distinct_years()$year[1],
+  sliderInput("year_selection", "",
+              min(distinct_years()$year), 
+              max(distinct_years()$year),
+              c(min(distinct_years()$year), max(distinct_years()$year)),
+              sep = "",
+              step = 1)
+})
+
+# Show surveys
+pickerInput(inputId = "survey_selection",
+            label = "Show Survey:",
+            choices = distinct_surveys,
+            selected = "vegetation_biomass",
             multiple = TRUE,
             options = list(`actions-box` = TRUE)
             )
-})
 
 # Show all gridpoints
 gridpoints_all <- df_surveys %>%
@@ -154,7 +152,7 @@ Table {.tabset data-width=700}
 gridpoints_table <- reactive({
   df_surveys %>% 
   select(-lat, -long) %>%
-  filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+  filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
   distinct(year, grid_point, survey) %>%
   arrange(year, grid_point, survey)
 })
@@ -174,7 +172,7 @@ Chart {.tabset data-width=700}
 ```{r}
 survey_chart <- reactive({
   df_surveys %>%
-    filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+    filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
     distinct(year, grid_point, survey) %>%
     count(year, survey, name = "count")
 })
