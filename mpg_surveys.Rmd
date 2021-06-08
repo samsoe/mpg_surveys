@@ -181,6 +181,7 @@ Column {.tabset data-width=700}
 survey_chart <- reactive({
   df_surveys %>%
     filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+    distinct(year, grid_point, survey) %>%
     count(year, survey, name = "count")
 })
 
