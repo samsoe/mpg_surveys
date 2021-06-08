@@ -159,7 +159,7 @@ gridpoints_table <- reactive({
   select(-lat, -long) %>%
   filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
   distinct(year, grid_point, survey) %>%
-  mutate(grid_point = as.character(grid_point)) %>%
+#  mutate(grid_point = as.integer(grid_point)) %>%
   arrange(year, grid_point, survey)
 })
 
