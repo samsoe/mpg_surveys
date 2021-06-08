@@ -148,11 +148,8 @@ observe({
 leafletOutput("map_base", width = "100%", height = "100%")
 ```
 
-Table
+Table {.tabset data-width=700}
 =====================================
-
-Column {.tabset data-width=700}
------------------
 ```{r}
 gridpoints_table <- reactive({
   df_surveys %>% 
@@ -173,10 +170,8 @@ renderDT({
 })
 ```
 
-Chart
+Chart {.tabset data-width=700}
 =====================================
-Column {.tabset data-width=700}
------------------
 ```{r}
 survey_chart <- reactive({
   df_surveys %>%
