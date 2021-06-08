@@ -54,7 +54,7 @@ renderUI({
   sliderInput("year_selection", "",
               min(distinct_years()$year), 
               max(distinct_years()$year),
-              c(min(distinct_years()$year), max(distinct_years()$year)),
+              c(2020, 2020),
               sep = "",
               step = 1)
 })
