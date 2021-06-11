@@ -32,7 +32,7 @@ tb_surveys <- bq_table_download(bq_surveys)
 df_surveys <- as.data.frame(tb_surveys)
 ```
 
-Sidebar {.sidebar data-width=300}
+Sidebar {.sidebar data-width=320}
 =====================================
 ```{r}
 # Find unique surveys in dataset
@@ -63,7 +63,7 @@ renderUI({
 pickerInput(inputId = "survey_selection",
             label = "Show Survey:",
             choices = distinct_surveys,
-            selected = "vegetation_biomass",
+            selected = "vegetation biomass, clip plot",
             multiple = TRUE,
             options = list(`actions-box` = TRUE)
             )
@@ -119,7 +119,7 @@ gridpoints_highlighted <- reactive({
 })
 ```
 
-Map {.tabset data-width=700}
+Map {.tabset data-width=680}
 =====================================
 
 ```{r}
@@ -146,7 +146,7 @@ observe({
 leafletOutput("map_base", width = "100%", height = "100%")
 ```
 
-Table {.tabset data-width=700}
+Table {.tabset data-width=680}
 =====================================
 ```{r}
 gridpoints_table <- reactive({
@@ -167,7 +167,7 @@ renderDT({
 })
 ```
 
-Chart {.tabset data-width=700}
+Chart {.tabset data-width=680}
 =====================================
 ```{r}
 survey_chart <- reactive({
