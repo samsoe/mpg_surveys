@@ -32,23 +32,13 @@ tb_surveys <- bq_table_download(bq_surveys)
 df_surveys <- as.data.frame(tb_surveys)
 ```
 
-Sidebar {.sidebar data-width=300}
+Sidebar {.sidebar data-width=320}
 =====================================
-<br>
 ```{r}
 # Find unique surveys in dataset
 distinct_surveys <- df_surveys %>%
   select(survey) %>%
   distinct(survey)
-
-# Show surveys
-pickerInput(inputId = "survey_selection",
-            label = "Show Survey:",
-            choices = distinct_surveys,
-            selected = "vegetation_biomass",
-            multiple = TRUE,
-            options = list(`actions-box` = TRUE)
-            )
 
 # Based on user survey selection show available years
 distinct_years <- reactive({
@@ -59,16 +49,24 @@ distinct_years <- reactive({
     arrange(desc(year))
   })
 
-# Show years
+# Year Slider
 renderUI({
-  pickerInput(inputId = "year_selection",
-            label = "Show Year:",
-            choices = distinct_years(),
-            selected = distinct_years()$year[1],
+  sliderInput("year_selection", "",
+              min(distinct_years()$year), 
+              max(distinct_years()$year),
+              c(2020, 2020),
+              sep = "",
+              step = 1)
+})
+
+# Show surveys
+pickerInput(inputId = "survey_selection",
+            label = "Show Survey:",
+            choices = distinct_surveys,
+            selected = "vegetation biomass, clip plot",
             multiple = TRUE,
             options = list(`actions-box` = TRUE)
             )
-})
 
 # Show all gridpoints
 gridpoints_all <- df_surveys %>%
@@ -79,7 +77,7 @@ gridpoints_all <- df_surveys %>%
 gridpoints_selected <- reactive({
   df_surveys %>%
     select(grid_point, lat, long, year, survey) %>%
-    filter(year %in% input$year_selection & survey %in% input$survey_selection) %>%
+    filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
     distinct(grid_point, lat, long)
 })
 
@@ -121,7 +119,7 @@ gridpoints_highlighted <- reactive({
 })
 ```
 
-Map {.tabset data-width=700}
+Map {.tabset data-width=680}
 =====================================
 
 ```{r}
@@ -148,13 +146,13 @@ observe({
 leafletOutput("map_base", width = "100%", height = "100%")
 ```
 
-Table {.tabset data-width=700}
+Table {.tabset data-width=680}
 =====================================
 ```{r}
 gridpoints_table <- reactive({
   df_surveys %>% 
   select(-lat, -long) %>%
-  filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+  filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
   distinct(year, grid_point, survey) %>%
   arrange(year, grid_point, survey)
 })
@@ -169,12 +167,12 @@ renderDT({
 })
 ```
 
-Chart {.tabset data-width=700}
+Chart {.tabset data-width=680}
 =====================================
 ```{r}
 survey_chart <- reactive({
   df_surveys %>%
-    filter((year %in% input$year_selection & survey %in% input$survey_selection)) %>%
+    filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
     distinct(year, grid_point, survey) %>%
     count(year, survey, name = "count")
 })
