@@ -48,25 +48,27 @@ distinct_years <- reactive({
     distinct(year) %>%
     arrange(desc(year))
   })
+```
+<br>
+```{r}
+# Show surveys
+pickerInput(inputId = "survey_selection",
+            label = "Survey:",
+            choices = distinct_surveys,
+            selected = "vegetation biomass, clip plot",
+            multiple = TRUE,
+            options = list(`actions-box` = TRUE)
+            )
 
 # Year Slider
 renderUI({
-  sliderInput("year_selection", "",
+  sliderInput("year_selection", "Year:",
               min(distinct_years()$year), 
               max(distinct_years()$year),
               c(2020, 2020),
               sep = "",
               step = 1)
 })
-
-# Show surveys
-pickerInput(inputId = "survey_selection",
-            label = "Show Survey:",
-            choices = distinct_surveys,
-            selected = "vegetation biomass, clip plot",
-            multiple = TRUE,
-            options = list(`actions-box` = TRUE)
-            )
 
 # Show all gridpoints
 gridpoints_all <- df_surveys %>%
