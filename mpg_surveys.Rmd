@@ -146,6 +146,23 @@ observe({
 leafletOutput("map_base", width = "100%", height = "100%")
 ```
 
+Chart {.tabset data-width=680}
+=====================================
+```{r}
+survey_chart <- reactive({
+  df_surveys %>%
+    filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
+    distinct(year, grid_point, survey) %>%
+    count(year, survey, name = "count")
+})
+
+renderPlot({
+  ggplot(survey_chart(), aes(x = factor(year))) +
+    geom_bar(aes(weight = count, fill = survey), position = "dodge") +
+    labs(x = "Sample Year")
+})
+```
+
 Table {.tabset data-width=680}
 =====================================
 ```{r}
@@ -164,22 +181,5 @@ renderDT({
     filter = "top",
     options = list(scrollY = '400px', scrollX = TRUE)
   )
-})
-```
-
-Chart {.tabset data-width=680}
-=====================================
-```{r}
-survey_chart <- reactive({
-  df_surveys %>%
-    filter(year >= min(input$year_selection) & year <= max(input$year_selection) & survey %in% input$survey_selection) %>%
-    distinct(year, grid_point, survey) %>%
-    count(year, survey, name = "count")
-})
-
-renderPlot({
-  ggplot(survey_chart(), aes(x = factor(year))) +
-    geom_bar(aes(weight = count, fill = survey), position = "dodge") +
-    labs(x = "Sample Year")
 })
 ```
